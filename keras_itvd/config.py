@@ -4,6 +4,7 @@ class Config:
 	def __init__(self):
 		self.gpu_ids = '0'
 		self.num_epochs = 10
+		self.PNW = True
 
 		# setting for data augmentation
 		self.use_horizontal_flips = True

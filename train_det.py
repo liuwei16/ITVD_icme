@@ -45,18 +45,25 @@ slpn = nn.slpn(bfen[2], roi_input, C.num_rois, nb_classes=2, trainable=True)
 model_slpn = Model([img_input, roi_input], slpn)
 model_all = Model([img_input, roi_input], bfen[:2] + slpn)
 
-weight_path = 'data/models/bfen_val.hdf5'
+
+if C.PNW:
+	weight_path = 'data/models/bfen_val.hdf5'
+	out_path = './output/valmodels/det/PNW'
+	init_lr_befn = 1e-5
+else:
+	weight_path = 'data/models/resnet50_weights_tf_dim_ordering_tf_kernels_notop.h5'
+	out_path = './output/valmodels/det/scratch'
+	init_lr_befn = 1e-4
+
 model_all.load_weights(weight_path, by_name=True)
 print 'load weights from {}'.format(weight_path)
 
-init_lr_befn = 1e-5
 init_lr_slpn = 1e-4
 optimizer_befn = Adam(lr=init_lr_befn)
 optimizer_slpn = Adam(lr=init_lr_slpn)
 model_befn.compile(optimizer=optimizer_befn, loss=[losses.rpn_loss_cls_focal, losses.rpn_loss_regr()])
 model_slpn.compile(optimizer=optimizer_slpn, loss=[losses.class_loss_cls_focal, losses.class_loss_regr(1)])
 
-out_path = './output/valmodels/det'
 if not os.path.exists(out_path):
     os.mkdir(out_path)
 res_file = os.path.join(out_path,'records.txt')
